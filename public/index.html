@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Description" content="Webapp for managing Wheel Strategies">
+    <title>The Wheel</title>
+    <!-- Primary CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div id="root">
+    </div>
+    <script src="./wheel.js"></script>
+    <script type="text/javascript">
+        try {
+            var app = Elm.Main.init({
+                node: document.getElementById("root")
+            });
+        } catch (ReferenceError) {
+            document.write("<h1>Something went wrong!</h1><h2>Please hard-refresh (Shift+Refresh) to try again</h2>");
+        }
+    </script>
+</body>
+</html>
