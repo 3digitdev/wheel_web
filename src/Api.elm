@@ -1,32 +1,52 @@
 module Api exposing
-    ( Action
-    , Endpoint(..)
+    ( Action(..)
     , Option
+    , OptionId
     , Share
-    , Type
+    , ShareId
+    , Type(..)
     , Wheel
-    , decodeOptionListResponse
-    , decodeOptionResponse
-    , decodeShareListResponse
-    , decodeShareResponse
-    , decodeWheelListResponse
-    , decodeWheelResponse
-    , delete
-    , errorToString
-    , get
-    , post
-    , put
+    , WheelId
+    , createOption
+    , createShare
+    , createWheel
+    , deleteOption
+    , deleteShare
+    , deleteWheel
+    , getOption
+    , getShare
+    , getWheel
+    , listOptions
+    , listShares
+    , listWheels
+    , updateOption
+    , updateShare
+    , updateWheel
     )
 
-import Dict exposing (Dict)
 import Http
-import Json.Decode as JD exposing (dict, list, string)
+import Json.Decode as JD
 import Json.Decode.Pipeline as JDP
-import Json.Encode as JE exposing (Value, object)
+import Json.Encode as JE
+import RemoteData exposing (RemoteData, WebData, fromResult)
+import RemoteData.Http exposing (delete, get, post, put)
 
 
 
+-- import RemoteData.Http exposing (delete, get, post, put)
 -- TYPES
+
+
+type alias WheelId =
+    Int
+
+
+type alias OptionId =
+    Int
+
+
+type alias ShareId =
+    Int
 
 
 type Action
@@ -42,31 +62,31 @@ type Type
 
 
 type alias Share =
-    { id_ : Int
+    { id_ : Maybe ShareId
     , quantity : Int
     , cost : Float
     , saleDate : String
-    , wheelId : Int
+    , wheelId : WheelId
     , action : Action
     }
 
 
 type alias Option =
-    { id_ : Int
+    { id_ : Maybe OptionId
     , quantity : Int
     , strike : Float
     , premium : Float
     , open : Bool
     , saleDate : String
     , expDate : String
-    , wheelId : Int
+    , wheelId : WheelId
     , action : Action
     , optType : Type
     }
 
 
 type alias Wheel =
-    { id_ : Int
+    { id_ : Maybe WheelId
     , ticker : String
     , description : String
     , subtotal : Float
@@ -77,32 +97,170 @@ type alias Wheel =
     }
 
 
-type Endpoint
+type
+    Endpoint
+    -- Wheels
     = GetAllWheels
-    | GetWheelById Int
+    | GetWheelById WheelId
     | CreateWheel Http.Body
-    | UpdateWheel Int Http.Body
-    | DeleteWheel Int
-    | GetAllOptions Int
-    | GetOptionById Int Int
-    | CreateOption Int Http.Body
-    | UpdateOption Int Int Http.Body
-    | DeleteOption Int Int
-    | GetAllShares Int
-    | GetShareById Int Int
-    | CreateShare Int Http.Body
-    | UpdateShare Int Int Http.Body
-    | DeleteShare Int Int
+    | UpdateWheel WheelId Http.Body
+    | DeleteWheel WheelId
+      -- Options
+    | GetAllOptions WheelId
+    | GetOptionById WheelId OptionId
+    | CreateOption WheelId Http.Body
+    | UpdateOption WheelId OptionId Http.Body
+    | DeleteOption WheelId OptionId
+      -- Shares
+    | GetAllShares WheelId
+    | GetShareById WheelId ShareId
+    | CreateShare WheelId Http.Body
+    | UpdateShare WheelId ShareId Http.Body
+    | DeleteShare WheelId ShareId
 
 
-urlBase : String
-urlBase =
-    "http://localhost:4000"
+
+-- GET Endpoints
+
+
+getRequest : Endpoint -> (WebData a -> msg) -> JD.Decoder a -> Cmd msg
+getRequest endpoint msg decoder =
+    get (urlBuilder endpoint) msg decoder
+
+
+listWheels : (WebData (List Wheel) -> msg) -> Cmd msg
+listWheels msg =
+    getRequest GetAllWheels msg decodeWheelListResponse
+
+
+getWheel : WheelId -> (WebData Wheel -> msg) -> Cmd msg
+getWheel wheelId msg =
+    getRequest (GetWheelById wheelId) msg decodeWheelResponse
+
+
+listOptions : WheelId -> (WebData (List Option) -> msg) -> Cmd msg
+listOptions wheelId msg =
+    getRequest (GetAllOptions wheelId) msg decodeOptionListResponse
+
+
+getOption : WheelId -> OptionId -> (WebData Option -> msg) -> Cmd msg
+getOption wheelId optionId msg =
+    getRequest (GetOptionById wheelId optionId) msg decodeOptionResponse
+
+
+listShares : WheelId -> (WebData (List Share) -> msg) -> Cmd msg
+listShares wheelId msg =
+    getRequest (GetAllShares wheelId) msg decodeShareListResponse
+
+
+getShare : WheelId -> ShareId -> (WebData Share -> msg) -> Cmd msg
+getShare wheelId shareId msg =
+    getRequest (GetShareById wheelId shareId) msg decodeShareResponse
+
+
+
+-- POST Endpoints
+
+
+postRequest : Endpoint -> (WebData a -> msg) -> JD.Decoder a -> JE.Value -> Cmd msg
+postRequest endpoint msg decoder encodedObject =
+    post (urlBuilder endpoint) msg decoder encodedObject
+
+
+createWheel : Wheel -> (WebData Wheel -> msg) -> Cmd msg
+createWheel wheel msg =
+    let
+        encodedWheel =
+            encodeWheel wheel
+    in
+    postRequest (CreateWheel (Http.jsonBody encodedWheel)) msg decodeWheelResponse encodedWheel
+
+
+createOption : WheelId -> Option -> (WebData Option -> msg) -> Cmd msg
+createOption wheelId option msg =
+    let
+        encodedOption =
+            encodeOption option
+    in
+    postRequest (CreateOption wheelId (Http.jsonBody encodedOption)) msg decodeOptionResponse encodedOption
+
+
+createShare : WheelId -> Share -> (WebData Share -> msg) -> Cmd msg
+createShare wheelId share msg =
+    let
+        encodedShare =
+            encodeShare share
+    in
+    postRequest (CreateShare wheelId (Http.jsonBody encodedShare)) msg decodeShareResponse encodedShare
+
+
+
+-- PUT Endpoints
+
+
+putRequest : Endpoint -> (WebData a -> msg) -> JD.Decoder a -> JE.Value -> Cmd msg
+putRequest endpoint msg decoder encodedObject =
+    put (urlBuilder endpoint) msg decoder encodedObject
+
+
+updateWheel : WheelId -> Wheel -> (WebData Wheel -> msg) -> Cmd msg
+updateWheel wheelId wheel msg =
+    let
+        encodedWheel =
+            encodeWheel wheel
+    in
+    putRequest (UpdateWheel wheelId (Http.jsonBody encodedWheel)) msg decodeWheelResponse encodedWheel
+
+
+updateOption : WheelId -> OptionId -> Option -> (WebData Option -> msg) -> Cmd msg
+updateOption wheelId optionId option msg =
+    let
+        encodedOption =
+            encodeOption option
+    in
+    putRequest (UpdateOption wheelId optionId (Http.jsonBody encodedOption)) msg decodeOptionResponse encodedOption
+
+
+updateShare : WheelId -> ShareId -> Share -> (WebData Share -> msg) -> Cmd msg
+updateShare wheelId shareId share msg =
+    let
+        encodedShare =
+            encodeShare share
+    in
+    putRequest (UpdateShare wheelId shareId (Http.jsonBody encodedShare)) msg decodeShareResponse encodedShare
+
+
+
+-- DELETE Endpoints
+
+
+deleteRequest : Endpoint -> (WebData String -> msg) -> Cmd msg
+deleteRequest endpoint msg =
+    delete (urlBuilder endpoint) msg JE.null
+
+
+deleteWheel : WheelId -> (WebData String -> msg) -> Cmd msg
+deleteWheel wheelId msg =
+    deleteRequest (DeleteWheel wheelId) msg
+
+
+deleteOption : WheelId -> OptionId -> (WebData String -> msg) -> Cmd msg
+deleteOption wheelId optionId msg =
+    deleteRequest (DeleteOption wheelId optionId) msg
+
+
+deleteShare : WheelId -> ShareId -> (WebData String -> msg) -> Cmd msg
+deleteShare wheelId shareId msg =
+    deleteRequest (DeleteShare wheelId shareId) msg
+
+
+
+-- HELPER FUNCTIONS
 
 
 urlBuilder : Endpoint -> String
 urlBuilder endpoint =
-    urlBase
+    "http://localhost:4000"
         ++ (case endpoint of
                 GetAllWheels ->
                     "/wheels"
@@ -151,6 +309,10 @@ urlBuilder endpoint =
            )
 
 
+
+-- DECODERS / ENCODERS
+
+
 decodeAction : JD.Decoder Action
 decodeAction =
     JD.string
@@ -168,15 +330,38 @@ decodeAction =
             )
 
 
+encodeAction : Action -> JE.Value
+encodeAction action =
+    case action of
+        Buy ->
+            JE.string "BUY"
+
+        Sell ->
+            JE.string "SELL"
+
+        ActionError ->
+            JE.null
+
+
 decodeShare : JD.Decoder Share
 decodeShare =
     JD.succeed Share
-        |> JDP.required "id" JD.int
+        |> JDP.required "id" (JD.nullable JD.int)
         |> JDP.required "quantity" JD.int
         |> JDP.required "cost" JD.float
         |> JDP.required "sale_date" JD.string
         |> JDP.required "wheel_id" JD.int
         |> JDP.required "action" decodeAction
+
+
+encodeShare : Share -> JE.Value
+encodeShare share =
+    JE.object
+        [ ( "quantity", JE.int share.quantity )
+        , ( "cost", JE.float share.cost )
+        , ( "sale_date", JE.string share.saleDate )
+        , ( "action", encodeAction share.action )
+        ]
 
 
 decodeShareResponse : JD.Decoder Share
@@ -192,7 +377,7 @@ decodeShareListResponse =
 decodeOption : JD.Decoder Option
 decodeOption =
     JD.succeed Option
-        |> JDP.required "id" JD.int
+        |> JDP.required "id" (JD.nullable JD.int)
         |> JDP.required "quantity" JD.int
         |> JDP.required "strike" JD.float
         |> JDP.required "premium" JD.float
@@ -218,6 +403,30 @@ decodeOption =
             )
 
 
+encodeOption : Option -> JE.Value
+encodeOption option =
+    JE.object
+        [ ( "quantity", JE.int option.quantity )
+        , ( "strike", JE.float option.strike )
+        , ( "premium", JE.float option.premium )
+        , ( "open", JE.bool option.open )
+        , ( "sale_date", JE.string option.saleDate )
+        , ( "exp_date", JE.string option.expDate )
+        , ( "action", encodeAction option.action )
+        , ( "optType"
+          , case option.optType of
+                Call ->
+                    JE.string "CALL"
+
+                Put ->
+                    JE.string "PUT"
+
+                TypeError ->
+                    JE.null
+          )
+        ]
+
+
 decodeOptionResponse : JD.Decoder Option
 decodeOptionResponse =
     JD.field "option" decodeOption
@@ -231,7 +440,7 @@ decodeOptionListResponse =
 decodeWheel : JD.Decoder Wheel
 decodeWheel =
     JD.succeed Wheel
-        |> JDP.required "id" JD.int
+        |> JDP.required "id" (JD.nullable JD.int)
         |> JDP.required "ticker" JD.string
         |> JDP.required "description" JD.string
         |> JDP.required "subtotal" JD.float
@@ -239,6 +448,17 @@ decodeWheel =
         |> JDP.required "assigned_shares" JD.bool
         |> JDP.hardcoded []
         |> JDP.hardcoded []
+
+
+encodeWheel : Wheel -> JE.Value
+encodeWheel wheel =
+    JE.object
+        [ ( "ticker", JE.string wheel.ticker )
+        , ( "description", JE.string wheel.description )
+        , ( "subtotal", JE.float wheel.subtotal )
+        , ( "positions_closed", JE.bool wheel.positionsClosed )
+        , ( "assigned_shares", JE.bool wheel.assignedShares )
+        ]
 
 
 decodeWheelResponse : JD.Decoder Wheel
@@ -249,78 +469,3 @@ decodeWheelResponse =
 decodeWheelListResponse : JD.Decoder (List Wheel)
 decodeWheelListResponse =
     JD.field "wheels" (JD.list decodeWheel)
-
-
-get : Endpoint -> JD.Decoder a -> (Result Http.Error a -> msg) -> Cmd msg
-get endpoint decoder cmd =
-    Http.request
-        { method = "GET"
-        , headers = []
-        , url = urlBuilder endpoint
-        , body = Http.emptyBody
-        , expect = Http.expectJson cmd decoder
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
-post : Endpoint -> JE.Value -> JD.Decoder a -> (Result Http.Error a -> msg) -> Cmd msg
-post endpoint body decoder cmd =
-    Http.request
-        { method = "POST"
-        , headers = []
-        , url = urlBuilder endpoint
-
-        -- TODO:  HOW TO SEND BODY?
-        , body = Http.jsonBody body
-        , expect = Http.expectJson cmd decoder
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
-put : Endpoint -> JE.Value -> JD.Decoder a -> (Result Http.Error a -> msg) -> Cmd msg
-put endpoint body decoder cmd =
-    Http.request
-        { method = "PUT"
-        , headers = []
-        , url = urlBuilder endpoint
-
-        -- TODO:  HOW TO SEND BODY?
-        , body = Http.jsonBody body
-        , expect = Http.expectJson cmd decoder
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
-delete : Endpoint -> (Result Http.Error () -> msg) -> Cmd msg
-delete endpoint cmd =
-    Http.request
-        { method = "DELETE"
-        , headers = []
-        , body = Http.emptyBody
-        , url = urlBuilder endpoint
-        , expect = Http.expectWhatever cmd
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
-errorToString : Http.Error -> String
-errorToString err =
-    case err of
-        Http.Timeout ->
-            "Timeout exceeded"
-
-        Http.NetworkError ->
-            "Network error"
-
-        Http.BadStatus text ->
-            "No wheel match:  " ++ String.fromInt text
-
-        Http.BadBody text ->
-            "Unexpected response from api: " ++ text
-
-        Http.BadUrl url ->
-            "Malformed url: " ++ url

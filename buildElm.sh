@@ -6,5 +6,4 @@
 # elm make src/Main.elm --optimize --output=public/wheel.js
 
 # Debug Commands
-elm make src/Main.elm --output=public/wheel.js
-elm reactor
+elm-live src/Main.elm --dir=public --start-page=index.html -- --output=public/wheel.js

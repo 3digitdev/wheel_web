@@ -1,11 +1,13 @@
 module Main exposing (main)
 
-import Api exposing (Option, Share, Wheel)
+import Api exposing (Action(..), Option, OptionId, Share, ShareId, Type(..), Wheel, WheelId)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import RemoteData exposing (RemoteData(..), WebData, fromResult)
+import RemoteData.Http exposing (delete, get, post, put)
 
 
 main =
@@ -22,13 +24,12 @@ main =
 
 
 type alias Model =
-    { currentWheel : Maybe Wheel
-    , currentShare : Maybe Share
-    , currentOption : Maybe Option
-    , wheels : List Wheel
-    , shares : List Share
-    , options : List Option
-    , errors : String
+    { currentWheel : WebData Wheel
+    , currentShare : WebData Share
+    , currentOption : WebData Option
+    , wheels : WebData (List Wheel)
+    , shares : WebData (List Share)
+    , options : WebData (List Option)
     }
 
 
@@ -38,18 +39,21 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    update (DeleteWheel 8) initModel
+    let
+        model =
+            initModel
+    in
+    ( model, listWheels model )
 
 
 initModel : Model
 initModel =
-    { currentWheel = Maybe.Nothing
-    , currentShare = Maybe.Nothing
-    , currentOption = Maybe.Nothing
-    , wheels = []
-    , shares = []
-    , options = []
-    , errors = ""
+    { currentWheel = NotAsked
+    , currentShare = NotAsked
+    , currentOption = NotAsked
+    , wheels = NotAsked
+    , shares = NotAsked
+    , options = NotAsked
     }
 
 
@@ -60,29 +64,23 @@ initModel =
 type Msg
     = NoOp
       -- Wheels
-    | GetWheels
-    | GotWheels (Result Http.Error (List Wheel))
-    | GetWheel Int
-    | GotWheel (Result Http.Error Wheel)
-      -- TODO: POST, PUT - HOW TO SEND BODY?
-    | DeleteWheel Int
-    | WheelDeleted (Result Http.Error ())
+    | HandleGetWheels (WebData (List Wheel))
+    | HandleGetWheel (WebData Wheel)
+    | HandleCreateWheel (WebData Wheel)
+    | HandleUpdateWheel (WebData Wheel)
+    | HandleDeleteWheel (WebData String)
       -- Options
-    | GetOptions Int
-    | GotOptions (Result Http.Error (List Option))
-    | GetOption Int Int
-    | GotOption (Result Http.Error Option)
-      -- TODO: POST, PUT - HOW TO SEND BODY?
-    | DeleteOption Int Int
-    | OptionDeleted (Result Http.Error ())
+    | HandleGetOptions (WebData (List Option))
+    | HandleGetOption (WebData Option)
+    | HandleCreateOption (WebData Option)
+    | HandleUpdateOption (WebData Option)
+    | HandleDeleteOption (WebData String)
       -- Shares
-    | GetShares Int
-    | GotShares (Result Http.Error (List Share))
-    | GetShare Int Int
-    | GotShare (Result Http.Error Share)
-      -- TODO: POST, PUT - HOW TO SEND BODY?
-    | DeleteShare Int Int
-    | ShareDeleted (Result Http.Error ())
+    | HandleGetShares (WebData (List Share))
+    | HandleGetShare (WebData Share)
+    | HandleCreateShare (WebData Share)
+    | HandleUpdateShare (WebData Share)
+    | HandleDeleteShare (WebData String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,134 +89,260 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        GetWheels ->
-            ( model, Api.get Api.GetAllWheels Api.decodeWheelListResponse GotWheels )
+        HandleGetWheels response ->
+            ( { model | wheels = response }, Cmd.none )
 
-        GotWheels result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , wheels = []
-                      }
-                    , Cmd.none
-                    )
+        HandleGetWheel response ->
+            ( { model | currentWheel = response }, Cmd.none )
 
-                Ok wheelList ->
-                    ( { model | wheels = wheelList, errors = "" }, Cmd.none )
+        HandleCreateWheel response ->
+            ( { model | currentWheel = response }, Cmd.none )
 
-        GetWheel wheelId ->
-            ( model, Api.get (Api.GetWheelById wheelId) Api.decodeWheelResponse GotWheel )
+        HandleUpdateWheel response ->
+            ( { model | currentWheel = response }, Cmd.none )
 
-        GotWheel result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , currentWheel = Maybe.Nothing
-                      }
-                    , Cmd.none
-                    )
+        HandleDeleteWheel response ->
+            ( { model | currentWheel = NotAsked }, Cmd.none )
 
-                Ok wheel ->
-                    ( { model | currentWheel = Just wheel, errors = "" }, Cmd.none )
+        HandleGetOptions response ->
+            ( { model | options = response }, Cmd.none )
 
-        DeleteWheel wheelId ->
-            ( model, Api.delete (Api.DeleteWheel wheelId) WheelDeleted )
+        HandleGetOption response ->
+            ( { model | currentOption = response }, Cmd.none )
 
-        WheelDeleted result ->
-            case result of
-                Err httpError ->
-                    ( { model | errors = httpError |> Api.errorToString }, Cmd.none )
+        HandleCreateOption response ->
+            ( { model | currentOption = response }, Cmd.none )
 
-                Ok _ ->
-                    ( { model | currentWheel = Maybe.Nothing, errors = "" }, Cmd.none )
+        HandleUpdateOption response ->
+            ( { model | currentOption = response }, Cmd.none )
 
-        GetOptions wheelId ->
-            ( model, Api.get (Api.GetAllOptions wheelId) Api.decodeOptionListResponse GotOptions )
+        HandleDeleteOption response ->
+            ( { model | currentOption = NotAsked }, Cmd.none )
 
-        GotOptions result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , options = []
-                      }
-                    , Cmd.none
-                    )
+        HandleGetShares response ->
+            ( { model | shares = response }, Cmd.none )
 
-                Ok optionList ->
-                    ( { model | options = optionList, errors = "" }, Cmd.none )
+        HandleGetShare response ->
+            ( { model | currentShare = response }, Cmd.none )
 
-        GetOption wheelId optionId ->
-            ( model, Api.get (Api.GetOptionById wheelId optionId) Api.decodeOptionResponse GotOption )
+        HandleCreateShare response ->
+            ( { model | currentShare = response }, Cmd.none )
 
-        GotOption result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , currentOption = Maybe.Nothing
-                      }
-                    , Cmd.none
-                    )
+        HandleUpdateShare response ->
+            ( { model | currentShare = response }, Cmd.none )
 
-                Ok option ->
-                    ( { model | currentOption = Just option, errors = "" }, Cmd.none )
+        HandleDeleteShare response ->
+            ( { model | currentShare = NotAsked }, Cmd.none )
 
-        DeleteOption wheelId optionId ->
-            ( model, Api.delete (Api.DeleteOption wheelId optionId) OptionDeleted )
 
-        OptionDeleted result ->
-            case result of
-                Err httpError ->
-                    ( { model | errors = httpError |> Api.errorToString }, Cmd.none )
+listWheels : Model -> Cmd Msg
+listWheels model =
+    Api.listWheels HandleGetWheels
 
-                Ok _ ->
-                    ( { model | currentOption = Maybe.Nothing, errors = "" }, Cmd.none )
 
-        GetShares wheelId ->
-            ( model, Api.get (Api.GetAllShares wheelId) Api.decodeShareListResponse GotShares )
+listOptions : Model -> Cmd Msg
+listOptions model =
+    case model.currentWheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.listOptions wheelId HandleGetOptions
 
-        GotShares result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , shares = []
-                      }
-                    , Cmd.none
-                    )
+                _ ->
+                    Cmd.none
 
-                Ok shareList ->
-                    ( { model | shares = shareList, errors = "" }, Cmd.none )
+        _ ->
+            Cmd.none
 
-        GetShare wheelId shareId ->
-            ( model, Api.get (Api.GetShareById wheelId shareId) Api.decodeShareResponse GotShare )
 
-        GotShare result ->
-            case result of
-                Err httpError ->
-                    ( { model
-                        | errors = httpError |> Api.errorToString
-                        , currentShare = Maybe.Nothing
-                      }
-                    , Cmd.none
-                    )
+listShares : Model -> Cmd Msg
+listShares model =
+    case model.currentWheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.listShares wheelId HandleGetShares
 
-                Ok share ->
-                    ( { model | currentShare = Just share, errors = "" }, Cmd.none )
+                _ ->
+                    Cmd.none
 
-        DeleteShare wheelId shareId ->
-            ( model, Api.delete (Api.DeleteShare wheelId shareId) ShareDeleted )
+        _ ->
+            Cmd.none
 
-        ShareDeleted result ->
-            case result of
-                Err httpError ->
-                    ( { model | errors = httpError |> Api.errorToString }, Cmd.none )
 
-                Ok _ ->
-                    ( { model | currentShare = Maybe.Nothing, errors = "" }, Cmd.none )
+getWheel : Model -> Cmd Msg
+getWheel model =
+    case model.currentWheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.getWheel wheelId HandleGetWheel
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+getOption : Model -> Cmd Msg
+getOption model =
+    case ( model.currentWheel, model.currentOption ) of
+        ( Success wheel, Success option ) ->
+            case ( wheel.id_, option.id_ ) of
+                ( Just wheelId, Just optionId ) ->
+                    Api.getOption wheelId optionId HandleGetOption
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+getShare : Model -> Cmd Msg
+getShare model =
+    case ( model.currentWheel, model.currentShare ) of
+        ( Success wheel, Success share ) ->
+            case ( wheel.id_, share.id_ ) of
+                ( Just wheelId, Just shareId ) ->
+                    Api.getShare wheelId shareId HandleGetShare
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+createWheel : Model -> Cmd Msg
+createWheel model =
+    case model.currentWheel of
+        Success wheel ->
+            Api.createWheel wheel HandleCreateWheel
+
+        _ ->
+            Cmd.none
+
+
+createOption : Model -> Cmd Msg
+createOption model =
+    case ( model.currentWheel, model.currentOption ) of
+        ( Success wheel, Success option ) ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.createOption wheelId option HandleCreateOption
+
+                Nothing ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+createShare : Model -> Cmd Msg
+createShare model =
+    case ( model.currentWheel, model.currentShare ) of
+        ( Success wheel, Success share ) ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.createShare wheelId share HandleCreateShare
+
+                Nothing ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+updateWheel : Model -> Cmd Msg
+updateWheel model =
+    case model.currentWheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.updateWheel wheelId wheel HandleUpdateWheel
+
+                Nothing ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+updateOption : Model -> Cmd Msg
+updateOption model =
+    case ( model.currentWheel, model.currentOption ) of
+        ( Success wheel, Success option ) ->
+            case ( wheel.id_, option.id_ ) of
+                ( Just wheelId, Just optionId ) ->
+                    Api.updateOption wheelId optionId option HandleUpdateOption
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+updateShare : Model -> Cmd Msg
+updateShare model =
+    case ( model.currentWheel, model.currentShare ) of
+        ( Success wheel, Success share ) ->
+            case ( wheel.id_, share.id_ ) of
+                ( Just wheelId, Just shareId ) ->
+                    Api.updateShare wheelId shareId share HandleUpdateShare
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+deleteWheel : Model -> Cmd Msg
+deleteWheel model =
+    case model.currentWheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.deleteWheel wheelId HandleDeleteWheel
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+deleteOption : Model -> Cmd Msg
+deleteOption model =
+    case ( model.currentWheel, model.currentOption ) of
+        ( Success wheel, Success option ) ->
+            case ( wheel.id_, option.id_ ) of
+                ( Just wheelId, Just optionId ) ->
+                    Api.deleteOption wheelId optionId HandleDeleteOption
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+deleteShare : Model -> Cmd Msg
+deleteShare model =
+    case ( model.currentWheel, model.currentShare ) of
+        ( Success wheel, Success share ) ->
+            case ( wheel.id_, share.id_ ) of
+                ( Just wheelId, Just shareId ) ->
+                    Api.deleteShare wheelId shareId HandleDeleteShare
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
 
 
 

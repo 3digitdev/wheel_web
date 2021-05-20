@@ -5319,112 +5319,36 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$DeleteWheel = function (a) {
-	return {$: 'DeleteWheel', a: a};
-};
-var $author$project$Main$initModel = {currentOption: $elm$core$Maybe$Nothing, currentShare: $elm$core$Maybe$Nothing, currentWheel: $elm$core$Maybe$Nothing, errors: '', options: _List_Nil, shares: _List_Nil, wheels: _List_Nil};
-var $author$project$Api$DeleteOption = F2(
-	function (a, b) {
-		return {$: 'DeleteOption', a: a, b: b};
-	});
-var $author$project$Api$DeleteShare = F2(
-	function (a, b) {
-		return {$: 'DeleteShare', a: a, b: b};
-	});
-var $author$project$Api$DeleteWheel = function (a) {
-	return {$: 'DeleteWheel', a: a};
-};
-var $author$project$Api$GetAllOptions = function (a) {
-	return {$: 'GetAllOptions', a: a};
-};
-var $author$project$Api$GetAllShares = function (a) {
-	return {$: 'GetAllShares', a: a};
+var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
+var $author$project$Main$initModel = {currentOption: $krisajenkins$remotedata$RemoteData$NotAsked, currentShare: $krisajenkins$remotedata$RemoteData$NotAsked, currentWheel: $krisajenkins$remotedata$RemoteData$NotAsked, options: $krisajenkins$remotedata$RemoteData$NotAsked, shares: $krisajenkins$remotedata$RemoteData$NotAsked, wheels: $krisajenkins$remotedata$RemoteData$NotAsked};
+var $author$project$Main$HandleGetWheels = function (a) {
+	return {$: 'HandleGetWheels', a: a};
 };
 var $author$project$Api$GetAllWheels = {$: 'GetAllWheels'};
-var $author$project$Api$GetOptionById = F2(
-	function (a, b) {
-		return {$: 'GetOptionById', a: a, b: b};
+var $author$project$Api$Wheel = F8(
+	function (id_, ticker, description, subtotal, positionsClosed, assignedShares, sharesList, optionsList) {
+		return {assignedShares: assignedShares, description: description, id_: id_, optionsList: optionsList, positionsClosed: positionsClosed, sharesList: sharesList, subtotal: subtotal, ticker: ticker};
 	});
-var $author$project$Api$GetShareById = F2(
-	function (a, b) {
-		return {$: 'GetShareById', a: a, b: b};
-	});
-var $author$project$Api$GetWheelById = function (a) {
-	return {$: 'GetWheelById', a: a};
-};
-var $author$project$Main$GotOption = function (a) {
-	return {$: 'GotOption', a: a};
-};
-var $author$project$Main$GotOptions = function (a) {
-	return {$: 'GotOptions', a: a};
-};
-var $author$project$Main$GotShare = function (a) {
-	return {$: 'GotShare', a: a};
-};
-var $author$project$Main$GotShares = function (a) {
-	return {$: 'GotShares', a: a};
-};
-var $author$project$Main$GotWheel = function (a) {
-	return {$: 'GotWheel', a: a};
-};
-var $author$project$Main$GotWheels = function (a) {
-	return {$: 'GotWheels', a: a};
-};
-var $author$project$Main$OptionDeleted = function (a) {
-	return {$: 'OptionDeleted', a: a};
-};
-var $author$project$Main$ShareDeleted = function (a) {
-	return {$: 'ShareDeleted', a: a};
-};
-var $author$project$Main$WheelDeleted = function (a) {
-	return {$: 'WheelDeleted', a: a};
-};
-var $author$project$Api$Call = {$: 'Call'};
-var $author$project$Api$Option = function (id_) {
-	return function (quantity) {
-		return function (strike) {
-			return function (premium) {
-				return function (open) {
-					return function (saleDate) {
-						return function (expDate) {
-							return function (wheelId) {
-								return function (action) {
-									return function (optType) {
-										return {action: action, expDate: expDate, id_: id_, open: open, optType: optType, premium: premium, quantity: quantity, saleDate: saleDate, strike: strike, wheelId: wheelId};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var $author$project$Api$Put = {$: 'Put'};
-var $author$project$Api$TypeError = {$: 'TypeError'};
-var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
-var $author$project$Api$ActionError = {$: 'ActionError'};
-var $author$project$Api$Buy = {$: 'Buy'};
-var $author$project$Api$Sell = {$: 'Sell'};
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Api$decodeAction = A2(
-	$elm$json$Json$Decode$andThen,
-	function (string) {
-		switch (string) {
-			case 'BUY':
-				return $elm$json$Json$Decode$succeed($author$project$Api$Buy);
-			case 'SELL':
-				return $elm$json$Json$Decode$succeed($author$project$Api$Sell);
-			default:
-				return $elm$json$Json$Decode$succeed($author$project$Api$ActionError);
-		}
-	},
-	$elm$json$Json$Decode$string);
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
-var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$hardcoded = A2($elm$core$Basics$composeR, $elm$json$Json$Decode$succeed, $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom);
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $elm$json$Json$Decode$nullable = function (decoder) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder)
+			]));
+};
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
@@ -5433,109 +5357,7 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2($elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var $author$project$Api$decodeOption = A3(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'type',
-	A2(
-		$elm$json$Json$Decode$andThen,
-		function (t) {
-			switch (t) {
-				case 'CALL':
-					return $elm$json$Json$Decode$succeed($author$project$Api$Call);
-				case 'PUT':
-					return $elm$json$Json$Decode$succeed($author$project$Api$Put);
-				default:
-					return $elm$json$Json$Decode$succeed($author$project$Api$TypeError);
-			}
-		},
-		$elm$json$Json$Decode$string),
-	A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'action',
-		$author$project$Api$decodeAction,
-		A3(
-			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'wheel_id',
-			$elm$json$Json$Decode$int,
-			A3(
-				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'exp_date',
-				$elm$json$Json$Decode$string,
-				A3(
-					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'sale_date',
-					$elm$json$Json$Decode$string,
-					A3(
-						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'open',
-						$elm$json$Json$Decode$bool,
-						A3(
-							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'premium',
-							$elm$json$Json$Decode$float,
-							A3(
-								$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'strike',
-								$elm$json$Json$Decode$float,
-								A3(
-									$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'quantity',
-									$elm$json$Json$Decode$int,
-									A3(
-										$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'id',
-										$elm$json$Json$Decode$int,
-										$elm$json$Json$Decode$succeed($author$project$Api$Option)))))))))));
-var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Api$decodeOptionListResponse = A2(
-	$elm$json$Json$Decode$field,
-	'options',
-	$elm$json$Json$Decode$list($author$project$Api$decodeOption));
-var $author$project$Api$decodeOptionResponse = A2($elm$json$Json$Decode$field, 'option', $author$project$Api$decodeOption);
-var $author$project$Api$Share = F6(
-	function (id_, quantity, cost, saleDate, wheelId, action) {
-		return {action: action, cost: cost, id_: id_, quantity: quantity, saleDate: saleDate, wheelId: wheelId};
-	});
-var $author$project$Api$decodeShare = A3(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'action',
-	$author$project$Api$decodeAction,
-	A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'wheel_id',
-		$elm$json$Json$Decode$int,
-		A3(
-			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'sale_date',
-			$elm$json$Json$Decode$string,
-			A3(
-				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'cost',
-				$elm$json$Json$Decode$float,
-				A3(
-					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'quantity',
-					$elm$json$Json$Decode$int,
-					A3(
-						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'id',
-						$elm$json$Json$Decode$int,
-						$elm$json$Json$Decode$succeed($author$project$Api$Share)))))));
-var $author$project$Api$decodeShareListResponse = A2(
-	$elm$json$Json$Decode$field,
-	'shares',
-	$elm$json$Json$Decode$list($author$project$Api$decodeShare));
-var $author$project$Api$decodeShareResponse = A2($elm$json$Json$Decode$field, 'share', $author$project$Api$decodeShare);
-var $author$project$Api$Wheel = F8(
-	function (id_, ticker, description, subtotal, positionsClosed, assignedShares, sharesList, optionsList) {
-		return {assignedShares: assignedShares, description: description, id_: id_, optionsList: optionsList, positionsClosed: positionsClosed, sharesList: sharesList, subtotal: subtotal, ticker: ticker};
-	});
-var $elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$hardcoded = A2($elm$core$Basics$composeR, $elm$json$Json$Decode$succeed, $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom);
+var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Api$decodeWheel = A2(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$hardcoded,
 	_List_Nil,
@@ -5565,13 +5387,13 @@ var $author$project$Api$decodeWheel = A2(
 							A3(
 								$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 								'id',
-								$elm$json$Json$Decode$int,
+								$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
 								$elm$json$Json$Decode$succeed($author$project$Api$Wheel)))))))));
+var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Api$decodeWheelListResponse = A2(
 	$elm$json$Json$Decode$field,
 	'wheels',
 	$elm$json$Json$Decode$list($author$project$Api$decodeWheel));
-var $author$project$Api$decodeWheelResponse = A2($elm$json$Json$Decode$field, 'wheel', $author$project$Api$decodeWheel);
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
 		return {$: 'BadStatus_', a: a, b: b};
@@ -6115,13 +5937,25 @@ var $elm$core$Dict$update = F3(
 		}
 	});
 var $elm$http$Http$emptyBody = _Http_emptyBody;
-var $elm$http$Http$expectBytesResponse = F2(
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$http$Http$expectStringResponse = F2(
 	function (toMsg, toResult) {
 		return A3(
 			_Http_expect,
-			'arraybuffer',
-			_Http_toDataView,
+			'',
+			$elm$core$Basics$identity,
 			A2($elm$core$Basics$composeR, toResult, toMsg));
+	});
+var $elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (result.$ === 'Ok') {
+			var v = result.a;
+			return $elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return $elm$core$Result$Err(
+				f(e));
+		}
 	});
 var $elm$http$Http$BadBody = function (a) {
 	return {$: 'BadBody', a: a};
@@ -6134,17 +5968,6 @@ var $elm$http$Http$BadUrl = function (a) {
 };
 var $elm$http$Http$NetworkError = {$: 'NetworkError'};
 var $elm$http$Http$Timeout = {$: 'Timeout'};
-var $elm$core$Result$mapError = F2(
-	function (f, result) {
-		if (result.$ === 'Ok') {
-			var v = result.a;
-			return $elm$core$Result$Ok(v);
-		} else {
-			var e = result.a;
-			return $elm$core$Result$Err(
-				f(e));
-		}
-	});
 var $elm$http$Http$resolve = F2(
 	function (toResult, response) {
 		switch (response.$) {
@@ -6168,14 +5991,33 @@ var $elm$http$Http$resolve = F2(
 					toResult(body));
 		}
 	});
-var $elm$http$Http$expectWhatever = function (toMsg) {
-	return A2(
-		$elm$http$Http$expectBytesResponse,
-		toMsg,
-		$elm$http$Http$resolve(
-			function (_v0) {
-				return $elm$core$Result$Ok(_Utils_Tuple0);
-			}));
+var $elm$http$Http$expectJson = F2(
+	function (toMsg, decoder) {
+		return A2(
+			$elm$http$Http$expectStringResponse,
+			toMsg,
+			$elm$http$Http$resolve(
+				function (string) {
+					return A2(
+						$elm$core$Result$mapError,
+						$elm$json$Json$Decode$errorToString,
+						A2($elm$json$Json$Decode$decodeString, decoder, string));
+				}));
+	});
+var $krisajenkins$remotedata$RemoteData$Failure = function (a) {
+	return {$: 'Failure', a: a};
+};
+var $krisajenkins$remotedata$RemoteData$Success = function (a) {
+	return {$: 'Success', a: a};
+};
+var $krisajenkins$remotedata$RemoteData$fromResult = function (result) {
+	if (result.$ === 'Err') {
+		var e = result.a;
+		return $krisajenkins$remotedata$RemoteData$Failure(e);
+	} else {
+		var x = result.a;
+		return $krisajenkins$remotedata$RemoteData$Success(x);
+	}
 };
 var $elm$http$Http$Request = function (a) {
 	return {$: 'Request', a: a};
@@ -6345,130 +6187,137 @@ var $elm$http$Http$request = function (r) {
 		$elm$http$Http$Request(
 			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
-var $author$project$Api$urlBase = 'http://localhost:4000';
-var $author$project$Api$urlBuilder = function (endpoint) {
-	return _Utils_ap(
-		$author$project$Api$urlBase,
-		function () {
-			switch (endpoint.$) {
-				case 'GetAllWheels':
-					return '/wheels';
-				case 'GetWheelById':
-					var wheelId = endpoint.a;
-					return '/wheels/' + $elm$core$String$fromInt(wheelId);
-				case 'CreateWheel':
-					return '/wheels';
-				case 'UpdateWheel':
-					var wheelId = endpoint.a;
-					return '/wheels/' + $elm$core$String$fromInt(wheelId);
-				case 'DeleteWheel':
-					var wheelId = endpoint.a;
-					return '/wheels/' + $elm$core$String$fromInt(wheelId);
-				case 'GetAllOptions':
-					var wheelId = endpoint.a;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/options');
-				case 'GetOptionById':
-					var wheelId = endpoint.a;
-					var optionId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
-				case 'CreateOption':
-					var wheelId = endpoint.a;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/options');
-				case 'UpdateOption':
-					var wheelId = endpoint.a;
-					var optionId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
-				case 'DeleteOption':
-					var wheelId = endpoint.a;
-					var optionId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
-				case 'GetAllShares':
-					var wheelId = endpoint.a;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/shares');
-				case 'GetShareById':
-					var wheelId = endpoint.a;
-					var shareId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
-				case 'CreateShare':
-					var wheelId = endpoint.a;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/shares');
-				case 'UpdateShare':
-					var wheelId = endpoint.a;
-					var shareId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
-				default:
-					var wheelId = endpoint.a;
-					var shareId = endpoint.b;
-					return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
-			}
-		}());
+var $elm$http$Http$riskyRequest = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: true, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
-var $author$project$Api$delete = F2(
-	function (endpoint, cmd) {
-		return $elm$http$Http$request(
-			{
-				body: $elm$http$Http$emptyBody,
-				expect: $elm$http$Http$expectWhatever(cmd),
-				headers: _List_Nil,
-				method: 'DELETE',
-				timeout: $elm$core$Maybe$Nothing,
-				tracker: $elm$core$Maybe$Nothing,
-				url: $author$project$Api$urlBuilder(endpoint)
-			});
-	});
-var $author$project$Api$errorToString = function (err) {
-	switch (err.$) {
-		case 'Timeout':
-			return 'Timeout exceeded';
-		case 'NetworkError':
-			return 'Network error';
-		case 'BadStatus':
-			var text = err.a;
-			return 'No wheel match:  ' + $elm$core$String$fromInt(text);
-		case 'BadBody':
-			var text = err.a;
-			return 'Unexpected response from api: ' + text;
-		default:
-			var url = err.a;
-			return 'Malformed url: ' + url;
-	}
+var $ohanhi$remotedata_http$RemoteData$Http$performRequest = function (_v0) {
+	var risky = _v0.risky;
+	return risky ? $elm$http$Http$riskyRequest : $elm$http$Http$request;
 };
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $elm$http$Http$expectStringResponse = F2(
-	function (toMsg, toResult) {
-		return A3(
-			_Http_expect,
-			'',
-			$elm$core$Basics$identity,
-			A2($elm$core$Basics$composeR, toResult, toMsg));
-	});
-var $elm$http$Http$expectJson = F2(
-	function (toMsg, decoder) {
+var $ohanhi$remotedata_http$RemoteData$Http$request = F6(
+	function (method, config, url, tagger, decoder, body) {
 		return A2(
-			$elm$http$Http$expectStringResponse,
-			toMsg,
-			$elm$http$Http$resolve(
-				function (string) {
-					return A2(
-						$elm$core$Result$mapError,
-						$elm$json$Json$Decode$errorToString,
-						A2($elm$json$Json$Decode$decodeString, decoder, string));
-				}));
-	});
-var $author$project$Api$get = F3(
-	function (endpoint, decoder, cmd) {
-		return $elm$http$Http$request(
+			$ohanhi$remotedata_http$RemoteData$Http$performRequest,
+			config,
 			{
-				body: $elm$http$Http$emptyBody,
-				expect: A2($elm$http$Http$expectJson, cmd, decoder),
-				headers: _List_Nil,
-				method: 'GET',
-				timeout: $elm$core$Maybe$Nothing,
-				tracker: $elm$core$Maybe$Nothing,
-				url: $author$project$Api$urlBuilder(endpoint)
+				body: body,
+				expect: A2(
+					$elm$http$Http$expectJson,
+					A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, tagger),
+					decoder),
+				headers: config.headers,
+				method: method,
+				timeout: config.timeout,
+				tracker: config.tracker,
+				url: url
 			});
 	});
-var $elm$core$Debug$log = _Debug_log;
+var $ohanhi$remotedata_http$RemoteData$Http$getWithConfig = F4(
+	function (config, url, tagger, decoder) {
+		return A6($ohanhi$remotedata_http$RemoteData$Http$request, 'GET', config, url, tagger, decoder, $elm$http$Http$emptyBody);
+	});
+var $elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 'Header', a: a, b: b};
+	});
+var $elm$http$Http$header = $elm$http$Http$Header;
+var $ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2($elm$http$Http$header, 'Accept', 'application/json');
+var $ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
+	headers: _List_fromArray(
+		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	risky: false,
+	timeout: $elm$core$Maybe$Nothing,
+	tracker: $elm$core$Maybe$Nothing
+};
+var $ohanhi$remotedata_http$RemoteData$Http$noCache = A2($elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
+var $ohanhi$remotedata_http$RemoteData$Http$noCacheConfig = _Utils_update(
+	$ohanhi$remotedata_http$RemoteData$Http$defaultConfig,
+	{
+		headers: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$get = $ohanhi$remotedata_http$RemoteData$Http$getWithConfig($ohanhi$remotedata_http$RemoteData$Http$noCacheConfig);
+var $author$project$Api$urlBuilder = function (endpoint) {
+	return 'http://localhost:4000' + function () {
+		switch (endpoint.$) {
+			case 'GetAllWheels':
+				return '/wheels';
+			case 'GetWheelById':
+				var wheelId = endpoint.a;
+				return '/wheels/' + $elm$core$String$fromInt(wheelId);
+			case 'CreateWheel':
+				return '/wheels';
+			case 'UpdateWheel':
+				var wheelId = endpoint.a;
+				return '/wheels/' + $elm$core$String$fromInt(wheelId);
+			case 'DeleteWheel':
+				var wheelId = endpoint.a;
+				return '/wheels/' + $elm$core$String$fromInt(wheelId);
+			case 'GetAllOptions':
+				var wheelId = endpoint.a;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/options');
+			case 'GetOptionById':
+				var wheelId = endpoint.a;
+				var optionId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
+			case 'CreateOption':
+				var wheelId = endpoint.a;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/options');
+			case 'UpdateOption':
+				var wheelId = endpoint.a;
+				var optionId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
+			case 'DeleteOption':
+				var wheelId = endpoint.a;
+				var optionId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/options/' + $elm$core$String$fromInt(optionId)));
+			case 'GetAllShares':
+				var wheelId = endpoint.a;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/shares');
+			case 'GetShareById':
+				var wheelId = endpoint.a;
+				var shareId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
+			case 'CreateShare':
+				var wheelId = endpoint.a;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + '/shares');
+			case 'UpdateShare':
+				var wheelId = endpoint.a;
+				var shareId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
+			default:
+				var wheelId = endpoint.a;
+				var shareId = endpoint.b;
+				return '/wheels/' + ($elm$core$String$fromInt(wheelId) + ('/shares/' + $elm$core$String$fromInt(shareId)));
+		}
+	}();
+};
+var $author$project$Api$getRequest = F3(
+	function (endpoint, msg, decoder) {
+		return A3(
+			$ohanhi$remotedata_http$RemoteData$Http$get,
+			$author$project$Api$urlBuilder(endpoint),
+			msg,
+			decoder);
+	});
+var $author$project$Api$listWheels = function (msg) {
+	return A3($author$project$Api$getRequest, $author$project$Api$GetAllWheels, msg, $author$project$Api$decodeWheelListResponse);
+};
+var $author$project$Main$listWheels = function (model) {
+	return $author$project$Api$listWheels($author$project$Main$HandleGetWheels);
+};
+var $author$project$Main$init = function (_v0) {
+	var model = $author$project$Main$initModel;
+	return _Utils_Tuple2(
+		model,
+		$author$project$Main$listWheels(model));
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$Main$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$none;
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$update = F2(
@@ -6476,280 +6325,113 @@ var $author$project$Main$update = F2(
 		switch (msg.$) {
 			case 'NoOp':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 'GetWheels':
+			case 'HandleGetWheels':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3($author$project$Api$get, $author$project$Api$GetAllWheels, $author$project$Api$decodeWheelListResponse, $author$project$Main$GotWheels));
-			case 'GotWheels':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError),
-								wheels: _List_Nil
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var wheelList = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{errors: '', wheels: wheelList}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'GetWheel':
-				var wheelId = msg.a;
+					_Utils_update(
+						model,
+						{wheels: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleGetWheel':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3(
-						$author$project$Api$get,
-						$author$project$Api$GetWheelById(wheelId),
-						$author$project$Api$decodeWheelResponse,
-						$author$project$Main$GotWheel));
-			case 'GotWheel':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentWheel: $elm$core$Maybe$Nothing,
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var wheel = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentWheel: $elm$core$Maybe$Just(wheel),
-								errors: ''
-							}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'DeleteWheel':
-				var wheelId = msg.a;
+					_Utils_update(
+						model,
+						{currentWheel: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleCreateWheel':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A2(
-						$author$project$Api$delete,
-						$author$project$Api$DeleteWheel(wheelId),
-						$author$project$Main$WheelDeleted));
-			case 'WheelDeleted':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var foo = A2($elm$core$Debug$log, 'wheel', 'deleted');
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{currentWheel: $elm$core$Maybe$Nothing, errors: ''}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'GetOptions':
-				var wheelId = msg.a;
+					_Utils_update(
+						model,
+						{currentWheel: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleUpdateWheel':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3(
-						$author$project$Api$get,
-						$author$project$Api$GetAllOptions(wheelId),
-						$author$project$Api$decodeOptionListResponse,
-						$author$project$Main$GotOptions));
-			case 'GotOptions':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError),
-								options: _List_Nil
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var optionList = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{errors: '', options: optionList}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'GetOption':
-				var wheelId = msg.a;
-				var optionId = msg.b;
+					_Utils_update(
+						model,
+						{currentWheel: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleDeleteWheel':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3(
-						$author$project$Api$get,
-						A2($author$project$Api$GetOptionById, wheelId, optionId),
-						$author$project$Api$decodeOptionResponse,
-						$author$project$Main$GotOption));
-			case 'GotOption':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentOption: $elm$core$Maybe$Nothing,
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var option = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentOption: $elm$core$Maybe$Just(option),
-								errors: ''
-							}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'DeleteOption':
-				var wheelId = msg.a;
-				var optionId = msg.b;
+					_Utils_update(
+						model,
+						{currentWheel: $krisajenkins$remotedata$RemoteData$NotAsked}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleGetOptions':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A2(
-						$author$project$Api$delete,
-						A2($author$project$Api$DeleteOption, wheelId, optionId),
-						$author$project$Main$OptionDeleted));
-			case 'OptionDeleted':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{currentOption: $elm$core$Maybe$Nothing, errors: ''}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'GetShares':
-				var wheelId = msg.a;
+					_Utils_update(
+						model,
+						{options: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleGetOption':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3(
-						$author$project$Api$get,
-						$author$project$Api$GetAllShares(wheelId),
-						$author$project$Api$decodeShareListResponse,
-						$author$project$Main$GotShares));
-			case 'GotShares':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError),
-								shares: _List_Nil
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var shareList = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{errors: '', shares: shareList}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'GetShare':
-				var wheelId = msg.a;
-				var shareId = msg.b;
+					_Utils_update(
+						model,
+						{currentOption: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleCreateOption':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A3(
-						$author$project$Api$get,
-						A2($author$project$Api$GetShareById, wheelId, shareId),
-						$author$project$Api$decodeShareResponse,
-						$author$project$Main$GotShare));
-			case 'GotShare':
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentShare: $elm$core$Maybe$Nothing,
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var share = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								currentShare: $elm$core$Maybe$Just(share),
-								errors: ''
-							}),
-						$elm$core$Platform$Cmd$none);
-				}
-			case 'DeleteShare':
-				var wheelId = msg.a;
-				var shareId = msg.b;
+					_Utils_update(
+						model,
+						{currentOption: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleUpdateOption':
+				var response = msg.a;
 				return _Utils_Tuple2(
-					model,
-					A2(
-						$author$project$Api$delete,
-						A2($author$project$Api$DeleteShare, wheelId, shareId),
-						$author$project$Main$ShareDeleted));
+					_Utils_update(
+						model,
+						{currentOption: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleDeleteOption':
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{currentOption: $krisajenkins$remotedata$RemoteData$NotAsked}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleGetShares':
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{shares: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleGetShare':
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{currentShare: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleCreateShare':
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{currentShare: response}),
+					$elm$core$Platform$Cmd$none);
+			case 'HandleUpdateShare':
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{currentShare: response}),
+					$elm$core$Platform$Cmd$none);
 			default:
-				var result = msg.a;
-				if (result.$ === 'Err') {
-					var httpError = result.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								errors: $author$project$Api$errorToString(httpError)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{currentShare: $elm$core$Maybe$Nothing, errors: ''}),
-						$elm$core$Platform$Cmd$none);
-				}
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{currentShare: $krisajenkins$remotedata$RemoteData$NotAsked}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$init = function (_v0) {
-	return A2(
-		$author$project$Main$update,
-		$author$project$Main$DeleteWheel(8),
-		$author$project$Main$initModel);
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Main$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
-};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $author$project$Main$view = function (model) {
 	return A2($elm$html$Html$div, _List_Nil, _List_Nil);
