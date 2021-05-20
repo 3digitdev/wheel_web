@@ -23,13 +23,22 @@ main =
 -- MODEL
 
 
+type PageState
+    = ListWheels
+    | ViewWheel
+    | ModifyWheel
+    | ViewOption
+    | ModifyOption
+    | ViewShare
+    | ModifyShare
+
+
 type alias Model =
-    { currentWheel : WebData Wheel
-    , currentShare : WebData Share
-    , currentOption : WebData Option
-    , wheels : WebData (List Wheel)
-    , shares : WebData (List Share)
-    , options : WebData (List Option)
+    { pageState : PageState
+    , wheel : WebData Wheel
+    , share : WebData Share
+    , option : WebData Option
+    , wheelList : WebData (List Wheel)
     }
 
 
@@ -48,12 +57,11 @@ init _ =
 
 initModel : Model
 initModel =
-    { currentWheel = NotAsked
-    , currentShare = NotAsked
-    , currentOption = NotAsked
-    , wheels = NotAsked
-    , shares = NotAsked
-    , options = NotAsked
+    { pageState = ListWheels
+    , wheel = NotAsked
+    , share = NotAsked
+    , option = NotAsked
+    , wheelList = NotAsked
     }
 
 
@@ -64,23 +72,20 @@ initModel =
 type Msg
     = NoOp
       -- Wheels
-    | HandleGetWheels (WebData (List Wheel))
-    | HandleGetWheel (WebData Wheel)
-    | HandleCreateWheel (WebData Wheel)
-    | HandleUpdateWheel (WebData Wheel)
-    | HandleDeleteWheel (WebData String)
+    | GotWheels (WebData (List Wheel))
+    | GotWheel (WebData Wheel)
+    | ModifiedWheel (WebData Wheel)
+    | DeletedWheel (WebData String)
       -- Options
-    | HandleGetOptions (WebData (List Option))
-    | HandleGetOption (WebData Option)
-    | HandleCreateOption (WebData Option)
-    | HandleUpdateOption (WebData Option)
-    | HandleDeleteOption (WebData String)
+    | GotOptions (Model -> Cmd Msg) (WebData (List Option))
+    | GotOption (WebData Option)
+    | ModifiedOption (WebData Option)
+    | DeletedOption (WebData String)
       -- Shares
-    | HandleGetShares (WebData (List Share))
-    | HandleGetShare (WebData Share)
-    | HandleCreateShare (WebData Share)
-    | HandleUpdateShare (WebData Share)
-    | HandleDeleteShare (WebData String)
+    | GotShares (WebData (List Share))
+    | GotShare (WebData Share)
+    | ModifiedShare (WebData Share)
+    | DeletedShare (WebData String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,64 +94,118 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        HandleGetWheels response ->
-            ( { model | wheels = response }, Cmd.none )
+        GotWheels response ->
+            ( { model | wheelList = response, pageState = ListWheels }, Cmd.none )
 
-        HandleGetWheel response ->
-            ( { model | currentWheel = response }, Cmd.none )
+        GotWheel response ->
+            let
+                newModel =
+                    { model | wheel = response, pageState = ViewWheel }
+            in
+            -- Chain to filling options data for the wheel, which chains to filling shares data too
+            ( newModel, newModel |> fillWheel )
 
-        HandleCreateWheel response ->
-            ( { model | currentWheel = response }, Cmd.none )
+        ModifiedWheel response ->
+            ( { model | wheel = response, pageState = ViewWheel }, Cmd.none )
 
-        HandleUpdateWheel response ->
-            ( { model | currentWheel = response }, Cmd.none )
+        DeletedWheel response ->
+            ( { model | wheel = NotAsked }, model |> listWheels )
 
-        HandleDeleteWheel response ->
-            ( { model | currentWheel = NotAsked }, Cmd.none )
+        GotOptions nextMsg response ->
+            let
+                newModel =
+                    { model
+                        | wheel =
+                            case ( model.wheel, response ) of
+                                ( Success wheel, Success optList ) ->
+                                    RemoteData.succeed { wheel | optionsList = optList }
 
-        HandleGetOptions response ->
-            ( { model | options = response }, Cmd.none )
+                                _ ->
+                                    model.wheel
+                        , pageState = ViewWheel
+                    }
+            in
+            -- Chains directly to also filling in shares for the wheel too
+            ( newModel, newModel |> nextMsg )
 
-        HandleGetOption response ->
-            ( { model | currentOption = response }, Cmd.none )
+        GotOption response ->
+            ( { model | option = response, pageState = ViewOption }, Cmd.none )
 
-        HandleCreateOption response ->
-            ( { model | currentOption = response }, Cmd.none )
+        ModifiedOption _ ->
+            let
+                newModel =
+                    { model | option = NotAsked }
+            in
+            ( newModel, newModel |> listOptions )
 
-        HandleUpdateOption response ->
-            ( { model | currentOption = response }, Cmd.none )
+        DeletedOption response ->
+            let
+                newModel =
+                    { model | option = NotAsked }
+            in
+            ( newModel, newModel |> listOptions )
 
-        HandleDeleteOption response ->
-            ( { model | currentOption = NotAsked }, Cmd.none )
+        GotShares response ->
+            let
+                newModel =
+                    { model
+                        | wheel =
+                            case ( model.wheel, response ) of
+                                ( Success wheel, Success shareList ) ->
+                                    RemoteData.succeed { wheel | sharesList = shareList }
 
-        HandleGetShares response ->
-            ( { model | shares = response }, Cmd.none )
+                                _ ->
+                                    model.wheel
+                        , pageState = ViewWheel
+                    }
+            in
+            ( newModel, Cmd.none )
 
-        HandleGetShare response ->
-            ( { model | currentShare = response }, Cmd.none )
+        GotShare response ->
+            ( { model | share = response, pageState = ViewShare }, Cmd.none )
 
-        HandleCreateShare response ->
-            ( { model | currentShare = response }, Cmd.none )
+        ModifiedShare _ ->
+            let
+                newModel =
+                    { model | share = NotAsked }
+            in
+            ( newModel, newModel |> listShares )
 
-        HandleUpdateShare response ->
-            ( { model | currentShare = response }, Cmd.none )
-
-        HandleDeleteShare response ->
-            ( { model | currentShare = NotAsked }, Cmd.none )
+        DeletedShare response ->
+            let
+                newModel =
+                    { model | share = NotAsked }
+            in
+            ( newModel, newModel |> listShares )
 
 
 listWheels : Model -> Cmd Msg
 listWheels model =
-    Api.listWheels HandleGetWheels
+    Api.listWheels GotWheels
 
 
 listOptions : Model -> Cmd Msg
 listOptions model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.listOptions wheelId HandleGetOptions
+                    Api.listOptions wheelId (GotOptions (\_ -> Cmd.none))
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+fillWheel : Model -> Cmd Msg
+fillWheel model =
+    case model.wheel of
+        Success wheel ->
+            case wheel.id_ of
+                Just wheelId ->
+                    Api.listOptions wheelId (GotOptions listShares)
 
                 _ ->
                     Cmd.none
@@ -157,11 +216,11 @@ listOptions model =
 
 listShares : Model -> Cmd Msg
 listShares model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.listShares wheelId HandleGetShares
+                    Api.listShares wheelId GotShares
 
                 _ ->
                     Cmd.none
@@ -172,11 +231,11 @@ listShares model =
 
 getWheel : Model -> Cmd Msg
 getWheel model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.getWheel wheelId HandleGetWheel
+                    Api.getWheel wheelId GotWheel
 
                 _ ->
                     Cmd.none
@@ -187,11 +246,11 @@ getWheel model =
 
 getOption : Model -> Cmd Msg
 getOption model =
-    case ( model.currentWheel, model.currentOption ) of
+    case ( model.wheel, model.option ) of
         ( Success wheel, Success option ) ->
             case ( wheel.id_, option.id_ ) of
                 ( Just wheelId, Just optionId ) ->
-                    Api.getOption wheelId optionId HandleGetOption
+                    Api.getOption wheelId optionId GotOption
 
                 _ ->
                     Cmd.none
@@ -202,11 +261,11 @@ getOption model =
 
 getShare : Model -> Cmd Msg
 getShare model =
-    case ( model.currentWheel, model.currentShare ) of
+    case ( model.wheel, model.share ) of
         ( Success wheel, Success share ) ->
             case ( wheel.id_, share.id_ ) of
                 ( Just wheelId, Just shareId ) ->
-                    Api.getShare wheelId shareId HandleGetShare
+                    Api.getShare wheelId shareId GotShare
 
                 _ ->
                     Cmd.none
@@ -217,9 +276,9 @@ getShare model =
 
 createWheel : Model -> Cmd Msg
 createWheel model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
-            Api.createWheel wheel HandleCreateWheel
+            Api.createWheel wheel ModifiedWheel
 
         _ ->
             Cmd.none
@@ -227,11 +286,11 @@ createWheel model =
 
 createOption : Model -> Cmd Msg
 createOption model =
-    case ( model.currentWheel, model.currentOption ) of
+    case ( model.wheel, model.option ) of
         ( Success wheel, Success option ) ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.createOption wheelId option HandleCreateOption
+                    Api.createOption wheelId option ModifiedOption
 
                 Nothing ->
                     Cmd.none
@@ -242,11 +301,11 @@ createOption model =
 
 createShare : Model -> Cmd Msg
 createShare model =
-    case ( model.currentWheel, model.currentShare ) of
+    case ( model.wheel, model.share ) of
         ( Success wheel, Success share ) ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.createShare wheelId share HandleCreateShare
+                    Api.createShare wheelId share ModifiedShare
 
                 Nothing ->
                     Cmd.none
@@ -257,11 +316,11 @@ createShare model =
 
 updateWheel : Model -> Cmd Msg
 updateWheel model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.updateWheel wheelId wheel HandleUpdateWheel
+                    Api.updateWheel wheelId wheel ModifiedWheel
 
                 Nothing ->
                     Cmd.none
@@ -272,11 +331,11 @@ updateWheel model =
 
 updateOption : Model -> Cmd Msg
 updateOption model =
-    case ( model.currentWheel, model.currentOption ) of
+    case ( model.wheel, model.option ) of
         ( Success wheel, Success option ) ->
             case ( wheel.id_, option.id_ ) of
                 ( Just wheelId, Just optionId ) ->
-                    Api.updateOption wheelId optionId option HandleUpdateOption
+                    Api.updateOption wheelId optionId option ModifiedOption
 
                 _ ->
                     Cmd.none
@@ -287,11 +346,11 @@ updateOption model =
 
 updateShare : Model -> Cmd Msg
 updateShare model =
-    case ( model.currentWheel, model.currentShare ) of
+    case ( model.wheel, model.share ) of
         ( Success wheel, Success share ) ->
             case ( wheel.id_, share.id_ ) of
                 ( Just wheelId, Just shareId ) ->
-                    Api.updateShare wheelId shareId share HandleUpdateShare
+                    Api.updateShare wheelId shareId share ModifiedShare
 
                 _ ->
                     Cmd.none
@@ -302,11 +361,11 @@ updateShare model =
 
 deleteWheel : Model -> Cmd Msg
 deleteWheel model =
-    case model.currentWheel of
+    case model.wheel of
         Success wheel ->
             case wheel.id_ of
                 Just wheelId ->
-                    Api.deleteWheel wheelId HandleDeleteWheel
+                    Api.deleteWheel wheelId DeletedWheel
 
                 _ ->
                     Cmd.none
@@ -317,11 +376,11 @@ deleteWheel model =
 
 deleteOption : Model -> Cmd Msg
 deleteOption model =
-    case ( model.currentWheel, model.currentOption ) of
+    case ( model.wheel, model.option ) of
         ( Success wheel, Success option ) ->
             case ( wheel.id_, option.id_ ) of
                 ( Just wheelId, Just optionId ) ->
-                    Api.deleteOption wheelId optionId HandleDeleteOption
+                    Api.deleteOption wheelId optionId DeletedOption
 
                 _ ->
                     Cmd.none
@@ -332,11 +391,11 @@ deleteOption model =
 
 deleteShare : Model -> Cmd Msg
 deleteShare model =
-    case ( model.currentWheel, model.currentShare ) of
+    case ( model.wheel, model.share ) of
         ( Success wheel, Success share ) ->
             case ( wheel.id_, share.id_ ) of
                 ( Just wheelId, Just shareId ) ->
-                    Api.deleteShare wheelId shareId HandleDeleteShare
+                    Api.deleteShare wheelId shareId DeletedShare
 
                 _ ->
                     Cmd.none

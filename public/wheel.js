@@ -5319,10 +5319,11 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Main$ListWheels = {$: 'ListWheels'};
 var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var $author$project$Main$initModel = {currentOption: $krisajenkins$remotedata$RemoteData$NotAsked, currentShare: $krisajenkins$remotedata$RemoteData$NotAsked, currentWheel: $krisajenkins$remotedata$RemoteData$NotAsked, options: $krisajenkins$remotedata$RemoteData$NotAsked, shares: $krisajenkins$remotedata$RemoteData$NotAsked, wheels: $krisajenkins$remotedata$RemoteData$NotAsked};
-var $author$project$Main$HandleGetWheels = function (a) {
-	return {$: 'HandleGetWheels', a: a};
+var $author$project$Main$initModel = {option: $krisajenkins$remotedata$RemoteData$NotAsked, pageState: $author$project$Main$ListWheels, share: $krisajenkins$remotedata$RemoteData$NotAsked, wheel: $krisajenkins$remotedata$RemoteData$NotAsked, wheelList: $krisajenkins$remotedata$RemoteData$NotAsked};
+var $author$project$Main$GotWheels = function (a) {
+	return {$: 'GotWheels', a: a};
 };
 var $author$project$Api$GetAllWheels = {$: 'GetAllWheels'};
 var $author$project$Api$Wheel = F8(
@@ -6305,7 +6306,7 @@ var $author$project$Api$listWheels = function (msg) {
 	return A3($author$project$Api$getRequest, $author$project$Api$GetAllWheels, msg, $author$project$Api$decodeWheelListResponse);
 };
 var $author$project$Main$listWheels = function (model) {
-	return $author$project$Api$listWheels($author$project$Main$HandleGetWheels);
+	return $author$project$Api$listWheels($author$project$Main$GotWheels);
 };
 var $author$project$Main$init = function (_v0) {
 	var model = $author$project$Main$initModel;
@@ -6318,118 +6319,349 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$ViewOption = {$: 'ViewOption'};
+var $author$project$Main$ViewShare = {$: 'ViewShare'};
+var $author$project$Main$ViewWheel = {$: 'ViewWheel'};
+var $author$project$Main$GotOptions = F2(
+	function (a, b) {
+		return {$: 'GotOptions', a: a, b: b};
+	});
+var $author$project$Api$GetAllOptions = function (a) {
+	return {$: 'GetAllOptions', a: a};
+};
+var $author$project$Api$Call = {$: 'Call'};
+var $author$project$Api$Option = function (id_) {
+	return function (quantity) {
+		return function (strike) {
+			return function (premium) {
+				return function (open) {
+					return function (saleDate) {
+						return function (expDate) {
+							return function (wheelId) {
+								return function (action) {
+									return function (optType) {
+										return {action: action, expDate: expDate, id_: id_, open: open, optType: optType, premium: premium, quantity: quantity, saleDate: saleDate, strike: strike, wheelId: wheelId};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var $author$project$Api$Put = {$: 'Put'};
+var $author$project$Api$TypeError = {$: 'TypeError'};
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Api$ActionError = {$: 'ActionError'};
+var $author$project$Api$Buy = {$: 'Buy'};
+var $author$project$Api$Sell = {$: 'Sell'};
+var $author$project$Api$decodeAction = A2(
+	$elm$json$Json$Decode$andThen,
+	function (string) {
+		switch (string) {
+			case 'BUY':
+				return $elm$json$Json$Decode$succeed($author$project$Api$Buy);
+			case 'SELL':
+				return $elm$json$Json$Decode$succeed($author$project$Api$Sell);
+			default:
+				return $elm$json$Json$Decode$succeed($author$project$Api$ActionError);
+		}
+	},
+	$elm$json$Json$Decode$string);
+var $author$project$Api$decodeOption = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'type',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (t) {
+			switch (t) {
+				case 'CALL':
+					return $elm$json$Json$Decode$succeed($author$project$Api$Call);
+				case 'PUT':
+					return $elm$json$Json$Decode$succeed($author$project$Api$Put);
+				default:
+					return $elm$json$Json$Decode$succeed($author$project$Api$TypeError);
+			}
+		},
+		$elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'action',
+		$author$project$Api$decodeAction,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'wheel_id',
+			$elm$json$Json$Decode$int,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'exp_date',
+				$elm$json$Json$Decode$string,
+				A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'sale_date',
+					$elm$json$Json$Decode$string,
+					A3(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'open',
+						$elm$json$Json$Decode$bool,
+						A3(
+							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							'premium',
+							$elm$json$Json$Decode$float,
+							A3(
+								$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+								'strike',
+								$elm$json$Json$Decode$float,
+								A3(
+									$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+									'quantity',
+									$elm$json$Json$Decode$int,
+									A3(
+										$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+										'id',
+										$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
+										$elm$json$Json$Decode$succeed($author$project$Api$Option)))))))))));
+var $author$project$Api$decodeOptionListResponse = A2(
+	$elm$json$Json$Decode$field,
+	'options',
+	$elm$json$Json$Decode$list($author$project$Api$decodeOption));
+var $author$project$Api$listOptions = F2(
+	function (wheelId, msg) {
+		return A3(
+			$author$project$Api$getRequest,
+			$author$project$Api$GetAllOptions(wheelId),
+			msg,
+			$author$project$Api$decodeOptionListResponse);
+	});
+var $author$project$Main$GotShares = function (a) {
+	return {$: 'GotShares', a: a};
+};
+var $author$project$Api$GetAllShares = function (a) {
+	return {$: 'GetAllShares', a: a};
+};
+var $author$project$Api$Share = F6(
+	function (id_, quantity, cost, saleDate, wheelId, action) {
+		return {action: action, cost: cost, id_: id_, quantity: quantity, saleDate: saleDate, wheelId: wheelId};
+	});
+var $author$project$Api$decodeShare = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'action',
+	$author$project$Api$decodeAction,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'wheel_id',
+		$elm$json$Json$Decode$int,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'sale_date',
+			$elm$json$Json$Decode$string,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'cost',
+				$elm$json$Json$Decode$float,
+				A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'quantity',
+					$elm$json$Json$Decode$int,
+					A3(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'id',
+						$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
+						$elm$json$Json$Decode$succeed($author$project$Api$Share)))))));
+var $author$project$Api$decodeShareListResponse = A2(
+	$elm$json$Json$Decode$field,
+	'shares',
+	$elm$json$Json$Decode$list($author$project$Api$decodeShare));
+var $author$project$Api$listShares = F2(
+	function (wheelId, msg) {
+		return A3(
+			$author$project$Api$getRequest,
+			$author$project$Api$GetAllShares(wheelId),
+			msg,
+			$author$project$Api$decodeShareListResponse);
+	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$listShares = function (model) {
+	var _v0 = model.wheel;
+	if (_v0.$ === 'Success') {
+		var wheel = _v0.a;
+		var _v1 = wheel.id_;
+		if (_v1.$ === 'Just') {
+			var wheelId = _v1.a;
+			return A2($author$project$Api$listShares, wheelId, $author$project$Main$GotShares);
+		} else {
+			return $elm$core$Platform$Cmd$none;
+		}
+	} else {
+		return $elm$core$Platform$Cmd$none;
+	}
+};
+var $author$project$Main$fillWheel = function (model) {
+	var _v0 = model.wheel;
+	if (_v0.$ === 'Success') {
+		var wheel = _v0.a;
+		var _v1 = wheel.id_;
+		if (_v1.$ === 'Just') {
+			var wheelId = _v1.a;
+			return A2(
+				$author$project$Api$listOptions,
+				wheelId,
+				$author$project$Main$GotOptions($author$project$Main$listShares));
+		} else {
+			return $elm$core$Platform$Cmd$none;
+		}
+	} else {
+		return $elm$core$Platform$Cmd$none;
+	}
+};
+var $author$project$Main$listOptions = function (model) {
+	var _v0 = model.wheel;
+	if (_v0.$ === 'Success') {
+		var wheel = _v0.a;
+		var _v1 = wheel.id_;
+		if (_v1.$ === 'Just') {
+			var wheelId = _v1.a;
+			return A2(
+				$author$project$Api$listOptions,
+				wheelId,
+				$author$project$Main$GotOptions(
+					function (_v2) {
+						return $elm$core$Platform$Cmd$none;
+					}));
+		} else {
+			return $elm$core$Platform$Cmd$none;
+		}
+	} else {
+		return $elm$core$Platform$Cmd$none;
+	}
+};
+var $krisajenkins$remotedata$RemoteData$succeed = $krisajenkins$remotedata$RemoteData$Success;
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'NoOp':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 'HandleGetWheels':
+			case 'GotWheels':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{wheels: response}),
+						{pageState: $author$project$Main$ListWheels, wheelList: response}),
 					$elm$core$Platform$Cmd$none);
-			case 'HandleGetWheel':
+			case 'GotWheel':
+				var response = msg.a;
+				var newModel = _Utils_update(
+					model,
+					{pageState: $author$project$Main$ViewWheel, wheel: response});
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$fillWheel(newModel));
+			case 'ModifiedWheel':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{currentWheel: response}),
+						{pageState: $author$project$Main$ViewWheel, wheel: response}),
 					$elm$core$Platform$Cmd$none);
-			case 'HandleCreateWheel':
+			case 'DeletedWheel':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{currentWheel: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleUpdateWheel':
+						{wheel: $krisajenkins$remotedata$RemoteData$NotAsked}),
+					$author$project$Main$listWheels(model));
+			case 'GotOptions':
+				var nextMsg = msg.a;
+				var response = msg.b;
+				var newModel = _Utils_update(
+					model,
+					{
+						pageState: $author$project$Main$ViewWheel,
+						wheel: function () {
+							var _v1 = _Utils_Tuple2(model.wheel, response);
+							if ((_v1.a.$ === 'Success') && (_v1.b.$ === 'Success')) {
+								var wheel = _v1.a.a;
+								var optList = _v1.b.a;
+								return $krisajenkins$remotedata$RemoteData$succeed(
+									_Utils_update(
+										wheel,
+										{optionsList: optList}));
+							} else {
+								return model.wheel;
+							}
+						}()
+					});
+				return _Utils_Tuple2(
+					newModel,
+					nextMsg(newModel));
+			case 'GotOption':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{currentWheel: response}),
+						{option: response, pageState: $author$project$Main$ViewOption}),
 					$elm$core$Platform$Cmd$none);
-			case 'HandleDeleteWheel':
+			case 'ModifiedOption':
+				var newModel = _Utils_update(
+					model,
+					{option: $krisajenkins$remotedata$RemoteData$NotAsked});
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$listOptions(newModel));
+			case 'DeletedOption':
+				var response = msg.a;
+				var newModel = _Utils_update(
+					model,
+					{option: $krisajenkins$remotedata$RemoteData$NotAsked});
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$listOptions(newModel));
+			case 'GotShares':
+				var response = msg.a;
+				var newModel = _Utils_update(
+					model,
+					{
+						pageState: $author$project$Main$ViewWheel,
+						wheel: function () {
+							var _v2 = _Utils_Tuple2(model.wheel, response);
+							if ((_v2.a.$ === 'Success') && (_v2.b.$ === 'Success')) {
+								var wheel = _v2.a.a;
+								var shareList = _v2.b.a;
+								return $krisajenkins$remotedata$RemoteData$succeed(
+									_Utils_update(
+										wheel,
+										{sharesList: shareList}));
+							} else {
+								return model.wheel;
+							}
+						}()
+					});
+				return _Utils_Tuple2(newModel, $elm$core$Platform$Cmd$none);
+			case 'GotShare':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{currentWheel: $krisajenkins$remotedata$RemoteData$NotAsked}),
+						{pageState: $author$project$Main$ViewShare, share: response}),
 					$elm$core$Platform$Cmd$none);
-			case 'HandleGetOptions':
-				var response = msg.a;
+			case 'ModifiedShare':
+				var newModel = _Utils_update(
+					model,
+					{share: $krisajenkins$remotedata$RemoteData$NotAsked});
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{options: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleGetOption':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentOption: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleCreateOption':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentOption: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleUpdateOption':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentOption: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleDeleteOption':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentOption: $krisajenkins$remotedata$RemoteData$NotAsked}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleGetShares':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{shares: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleGetShare':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentShare: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleCreateShare':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentShare: response}),
-					$elm$core$Platform$Cmd$none);
-			case 'HandleUpdateShare':
-				var response = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentShare: response}),
-					$elm$core$Platform$Cmd$none);
+					newModel,
+					$author$project$Main$listShares(newModel));
 			default:
 				var response = msg.a;
+				var newModel = _Utils_update(
+					model,
+					{share: $krisajenkins$remotedata$RemoteData$NotAsked});
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentShare: $krisajenkins$remotedata$RemoteData$NotAsked}),
-					$elm$core$Platform$Cmd$none);
+					newModel,
+					$author$project$Main$listShares(newModel));
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
